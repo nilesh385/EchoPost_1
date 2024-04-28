@@ -11,14 +11,16 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useImagePreview from "../hooks/useImagePreview";
 import useShowToast from "../hooks/useShowToast";
+import { Link } from "react-router-dom";
 
 export default function UpdateProfile() {
   const [user, setUser] = useRecoilState(userAtom);
   const showToast = useShowToast();
+  const [updating, setUpdating] = useState(false);
   const [inputsData, setInputsData] = useState({
     name: user.name,
     username: user.username,
@@ -33,6 +35,7 @@ export default function UpdateProfile() {
   const { handleImageChange, imgUrl } = useImagePreview();
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setUpdating(true);
 
     try {
       console.log(user, imgUrl);
@@ -49,10 +52,13 @@ export default function UpdateProfile() {
         showToast("Error", data.error, "error");
       } else {
         setUser(data);
+        localStorage.setItem("user", JSON.stringify(data));
         showToast("Success", "Profile updated successfully.", "success");
       }
     } catch (error) {
       showToast("Error", error, "error");
+    } finally {
+      setUpdating(false);
     }
   };
   return (
@@ -155,16 +161,19 @@ export default function UpdateProfile() {
             />
           </FormControl>
           <Stack spacing={6} direction={["column", "row"]}>
-            <Button
-              bg={"red.400"}
-              color={"white"}
-              w="full"
-              _hover={{
-                bg: "red.500",
-              }}
-            >
-              Cancel
-            </Button>
+            <Link style={{ width: "100%" }} to={"/"}>
+              <Button
+                bg={"red.400"}
+                color={"white"}
+                w="full"
+                _hover={{
+                  bg: "red.500",
+                }}
+                title="Cancel the update and go to home page"
+              >
+                Cancel
+              </Button>
+            </Link>
             <Button
               bg={"green.400"}
               color={"white"}
@@ -173,6 +182,7 @@ export default function UpdateProfile() {
                 bg: "green.500",
               }}
               type="submit"
+              isLoading={updating}
             >
               Submit
             </Button>

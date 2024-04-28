@@ -19,7 +19,7 @@ function useImagePreview() {
       setImgUrl(null);
     }
   };
-  return { imgUrl, handleImageChange };
+  return { imgUrl, setImgUrl, handleImageChange };
 }
 
 export default useImagePreview;

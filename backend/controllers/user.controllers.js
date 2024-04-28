@@ -2,6 +2,8 @@ import User from "../models/user.models.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utilities/jwtTokens-cookies.js";
 import { v2 as cloudinary } from "cloudinary";
+import mongoose from "mongoose";
+import Post from "../models/post.models.js";
 
 const signupUser = async (req, res) => {
   try {
@@ -95,7 +97,6 @@ const logoutUser = async (req, res) => {
 const followUnfollowUser = async (req, res) => {
   try {
     const { id } = req.params;
-
     const userToModify = await User.findById(id);
     const currentUser = await User.findById(req.user._id);
 
@@ -112,31 +113,17 @@ const followUnfollowUser = async (req, res) => {
 
     if (isFollowing) {
       //unfollow user
+      await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
       await User.findByIdAndUpdate(
         req.user._id,
         { $pull: { following: id } },
         { new: true }
       );
-      //modify currentUser following and modify followers of userToModify
-      await User.findByIdAndUpdate(
-        id,
-        { $pull: { followers: req.user._id } },
-        { new: true }
-      );
       res.status(200).json({ message: "User Unfollowed Successfully" });
     } else {
       //follow user
-      await User.findByIdAndUpdate(
-        req.user._id,
-        { $push: { following: id } },
-        { new: true }
-      );
-      //modify currentUser following and modify followers of userToModify
-      // await User.findByIdAndUpdate(
-      //   id,
-      //   { $push: { followers: req.user._id } },
-      //   { new: true }
-      // );
+      await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
+      await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
       res.status(200).json({ message: "User Followed Successfully" });
     }
   } catch (error) {
@@ -172,9 +159,9 @@ const userUpdateProfile = async (req, res) => {
       console.log(profilePic);
       //if user already has profilePic then delete the old one
       if (user.profilePic) {
-        await cloudinary.v2.uploader.destroy(
+        await cloudinary.uploader.destroy(
           user.profilePic.split("/").pop().split(".")[0]
-        );
+        ); //we did split,pop,and again split to get the image id in cloudinary to delete it
       }
       //add new profilPic
       const uploadedResponse = await cloudinary.uploader.upload(profilePic);
@@ -188,7 +175,22 @@ const userUpdateProfile = async (req, res) => {
     user.bio = bio || user.bio;
     //save updated user
     user = await user.save();
-    res.status(200).json({ message: "Profile Updated Successfully", user });
+
+    //find all posts that this replied and update username and userProfilePic fields
+    await Post.updateMany(
+      { "replies.userId": userid },
+      {
+        $set: {
+          "replies.$[reply].username": user.username,
+          "replies.$[reply].userProfilePic": user.profilePic,
+        },
+      },
+      { arrayFilters: [{ "reply.userId": userid }] }
+    );
+
+    //password should be null in response
+    user.password = null;
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log("Error in userUpdateProfile: ", error);
@@ -196,13 +198,18 @@ const userUpdateProfile = async (req, res) => {
 };
 
 const getUserProfile = async (req, res) => {
-  const { username } = req.params;
-
+  const { query } = req.params;
+  let user;
   try {
-    const user = await User.findOne({ username })
-      .select("-password")
-      .select("-createdAt")
-      .select("-updatedAt");
+    if (mongoose.Types.ObjectId.isValid(query)) {
+      user = await User.findOne({ _id: query })
+        .select("-password")
+        .select("-updatedAt");
+    } else {
+      user = await User.findOne({ username: query })
+        .select("-password")
+        .select("-updatedAt");
+    }
     if (!user) return res.status(404).json({ error: "User not found" });
     res.status(200).json(user);
   } catch (error) {

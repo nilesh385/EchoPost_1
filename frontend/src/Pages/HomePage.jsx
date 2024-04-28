@@ -1,16 +1,50 @@
-import { Button, Flex, useColorMode } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Flex, Spinner } from "@chakra-ui/react";
+// import { Link } from "react-router-dom";
+// import { useRecoilValue } from "recoil";
+// import userAtom from "../atoms/userAtom";
+import useShowToast from "../hooks/useShowToast";
+import { useEffect, useState } from "react";
+import Post from "../components/Post";
+import { useRecoilState } from "recoil";
+import postAtom from "../atoms/postsAtom";
 
 function HomePage() {
-  const { colorMode } = useColorMode();
+  const [posts, setPosts] = useRecoilState(postAtom);
+  const [isLoading, setIsLoading] = useState(true);
+  const showToast = useShowToast();
+  useEffect(() => {
+    const getFeedPosts = async () => {
+      setPosts([]);
+      try {
+        const res = await fetch("/api/posts/feed");
+        const data = await res.json();
+        // console.log(data.feedPosts);
+        setPosts(data.feedPosts);
+      } catch (error) {
+        showToast("Error", error, "error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getFeedPosts();
+  }, [showToast, setPosts]);
   return (
-    <Link to={"/markzukerberg"}>
-      <Flex w={"full"} justifyContent={"center"}>
-        <Button mx={"auto"} bg={colorMode === "light" ? "" : "gray.light"}>
-          Visit Profile Page
-        </Button>
-      </Flex>
-    </Link>
+    <>
+      {!isLoading && posts.length === 0 && (
+        <Flex align={"center"} justify={"center"}>
+          <h1>Follow some users to see feed</h1>
+        </Flex>
+      )}
+      {isLoading && posts && (
+        <Flex align={"center"} justify={"center"}>
+          <Spinner size={"xl"} />
+        </Flex>
+      )}
+      {posts &&
+        posts.map((post) => {
+          return <Post key={post._id} post={post} />;
+        })}
+    </>
   );
 }
 

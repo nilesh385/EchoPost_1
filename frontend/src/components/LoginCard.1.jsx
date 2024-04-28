@@ -17,13 +17,15 @@ import {
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useSetRecoilState } from "recoil";
-import authScreenAtom from "../atoms/authAtom";
+import authScreenAtom from "../atoms/authScreenAtom";
 import useShowToast from "../hooks/useShowToast";
+import userAtom from "../atoms/userAtom";
 
 export default function LoginCard() {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
   const toast = useToast();
+  const setUser = useSetRecoilState(userAtom);
 
   const [loginData, setLoginData] = useState({
     username: "",
@@ -46,6 +48,7 @@ export default function LoginCard() {
         return;
       }
       localStorage.setItem("user", JSON.stringify(data));
+      setUser(data);
       toast({
         title: "Success",
         description: "You have successfully logged-in",

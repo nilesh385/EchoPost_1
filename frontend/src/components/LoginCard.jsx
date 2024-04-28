@@ -29,9 +29,11 @@ export default function LoginCard() {
     username: "",
     password: "",
   });
+  const [updating, setUpdating] = useState(false);
 
   const showToast = useShowToast();
   const onSubmit = async () => {
+    setUpdating(true);
     try {
       const response = await fetch("/api/users/login", {
         method: "POST",
@@ -51,6 +53,8 @@ export default function LoginCard() {
       showToast("Success", "Logged in successfully", "success");
     } catch (error) {
       showToast("Error", error.message, "error");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -108,7 +112,7 @@ export default function LoginCard() {
             </FormControl>
             <Stack spacing={10} pt={2}>
               <Button
-                loadingText="Submitting"
+                loadingText="Logging in"
                 size="lg"
                 bg={useColorModeValue("gray.600", "gray.700")}
                 color={"white"}
@@ -116,6 +120,7 @@ export default function LoginCard() {
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
                 onClick={onSubmit}
+                isLoading={updating}
               >
                 Login
               </Button>

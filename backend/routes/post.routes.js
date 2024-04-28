@@ -5,6 +5,7 @@ import {
   getAllPosts,
   getFeedPosts,
   getPost,
+  getUserPosts,
   likeUnlikePost,
   replyPost,
 } from "../controllers/post.controllers.js";
@@ -14,10 +15,11 @@ const router = express.Router();
 
 router.get("/feed", authUser, getFeedPosts);
 router.get("/:id", getPost);
+router.get("/user/:username", getUserPosts);
 router.get("/", getAllPosts);
 router.post("/create", authUser, createPost);
-router.delete("/delete/:id", authUser, deletePost);
-router.post("/like/:id", authUser, likeUnlikePost);
-router.post("/reply/:id", authUser, replyPost);
+router.delete("/:id", authUser, deletePost);
+router.put("/like/:id", authUser, likeUnlikePost);
+router.put("/reply/:id", authUser, replyPost);
 
 export default router;

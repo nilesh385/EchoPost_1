@@ -10,7 +10,7 @@ import {
 import authUser from "../middlewares/authUser.middlewares.js";
 
 const router = express.Router();
-router.get("/profile/:username", getUserProfile);
+router.get("/profile/:query", getUserProfile);
 router.post("/signup", signupUser);
 //login
 router.post("/login", loginUser);

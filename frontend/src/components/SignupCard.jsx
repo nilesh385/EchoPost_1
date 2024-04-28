@@ -17,16 +17,16 @@ import {
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useSetRecoilState } from "recoil";
-import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import authScreenAtom from "../atoms/authScreenAtom";
 
 export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
   const setUser = useSetRecoilState(userAtom);
   const showToast = useShowToast();
-
+  const [updating, setUpdating] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -34,6 +34,7 @@ export default function SignupCard() {
     password: "",
   });
   const onSubmit = async () => {
+    setUpdating(true);
     try {
       const response = await fetch("/api/users/signup", {
         method: "POST",
@@ -54,6 +55,8 @@ export default function SignupCard() {
     } catch (error) {
       console.log(error);
       showToast("Error", error.message, "error");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -132,7 +135,7 @@ export default function SignupCard() {
             </FormControl>
             <Stack spacing={10} pt={2}>
               <Button
-                loadingText="Submitting"
+                loadingText="Signing up"
                 size="lg"
                 bg={useColorModeValue("gray.600", "gray.700")}
                 color={"white"}
@@ -140,6 +143,7 @@ export default function SignupCard() {
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
                 onClick={onSubmit}
+                isLoading={updating}
               >
                 Sign up
               </Button>

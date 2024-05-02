@@ -1,5 +1,6 @@
 import Conversation from "../models/conversation.models.js";
 import Message from "../models/message.models.js";
+import { getRecipienSocketId } from "../socket/socket.js";
 
 const sendMessage = async (req, res) => {
   try {
@@ -34,6 +35,11 @@ const sendMessage = async (req, res) => {
         },
       }),
     ]);
+
+    const recipientSocketId = getRecipienSocketId(recipientId);
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {
@@ -71,6 +77,13 @@ const getConversations = async (req, res) => {
       path: "participants",
       select: "_id name username profilePic",
     });
+    //remove current user from participants array
+    conversations.forEach((conversation) => {
+      conversation.participants = conversation.participants.filter(
+        (participant) => participant._id.toString() !== userId.toString()
+      );
+    });
+
     res.status(200).json(conversations);
   } catch (error) {
     res.status(500).json({ error: error.message });

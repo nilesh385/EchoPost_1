@@ -1,20 +1,41 @@
-import { Avatar, Flex, Text } from "@chakra-ui/react";
+import { Avatar, Flex, Text, useColorMode } from "@chakra-ui/react";
+import { useRecoilValue } from "recoil";
+import { selectedConversationAtom } from "../atoms/messagesAtom";
+import userAtom from "../atoms/userAtom";
 
-function Message({ ownMessage }) {
+function Message({ message, ownMessage }) {
+  const { colorMode } = useColorMode();
+  const selectedConversation = useRecoilValue(selectedConversationAtom);
+  const user = useRecoilValue(userAtom);
   return (
     <>
       {ownMessage ? (
         <Flex gap={2} alignSelf="flex-end">
-          <Text maxW={"330px"} bg={"blue.400"} p={1} borderRadius={"md"}>
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cumque
+          <Text
+            maxW={"330px"}
+            bg={colorMode === "dark" ? "blue.400" : "blue.300"}
+            p={1}
+            borderRadius={"md"}
+          >
+            {message.text}
           </Text>
-          <Avatar src="" w={7} h={7} />
+          <Avatar name={user.name} src={user.profilePic} w={7} h={7} />
         </Flex>
       ) : (
         <Flex gap={2} alignSelf={"flex-start"}>
-          <Avatar src="" w={7} h={7} />
-          <Text maxW={"330px"} bg={"gray.600"} p={1} borderRadius={"md"}>
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cumque
+          <Avatar
+            name={selectedConversation.username}
+            src={selectedConversation.userProfilePic}
+            w={7}
+            h={7}
+          />
+          <Text
+            maxW={"330px"}
+            bg={colorMode === "dark" ? "gray.600" : "gray.300"}
+            p={1}
+            borderRadius={"md"}
+          >
+            {message.text}
           </Text>
         </Flex>
       )}

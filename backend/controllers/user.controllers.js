@@ -62,6 +62,10 @@ const loginUser = async (req, res) => {
         .status(400)
         .json({ error: "username or password is incorrect" });
     }
+    if (user.isFrozen) {
+      user.isFrozen = false;
+      await user.save();
+    }
 
     generateTokenAndSetCookie(user._id, res);
 
@@ -213,42 +217,6 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-// const getSuggestedUsers = async (req, res) => {
-//   try {
-//     //exclude the current user and the users whome the current user is following
-//     const currentUserId = req.user._id;
-//     const alreadyFollowedUsers = await User.findById(currentUserId).select(
-//       "following"
-//     );
-
-//     const users = await User.aggregate([
-//       {
-//         $match: {
-//           _id: { $ne: currentUserId },
-//         },
-//       },
-//       {
-//         $sample: {
-//           size: 10,
-//         },
-//       },
-//     ]);
-
-//     const filteredUsers = users.filter((user) =>
-//       alreadyFollowedUsers.following.includes(user._id)
-//     );
-
-//     const suggestedusers = filteredUsers.slice(0, 4);
-//     suggestedusers.forEach((user) => (user.password = null));
-
-//     res.status(200).json(suggestedusers);
-//   } catch (error) {
-//     log("Error in getSuggestedUsers: ", error);
-//     res.status(500).json({
-//       message: "Internal Server Error",
-//     });
-//   }
-// };
 const getSuggestedUsers = async (req, res) => {
   try {
     const currentUserId = req.user._id;
@@ -282,9 +250,22 @@ const getSuggestedUsers = async (req, res) => {
     res.status(200).json(suggestedUsers);
   } catch (error) {
     console.log("Error in getSuggestedUsers: ", error);
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    res.status(500).json(error);
+  }
+};
+
+const freezeAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    user.isFrozen = true;
+    await user.save();
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.log("Error in freezeAccount: ", error);
+    res.status(500).json(error);
   }
 };
 
@@ -296,4 +277,5 @@ export {
   userUpdateProfile,
   getUserProfile,
   getSuggestedUsers,
+  freezeAccount,
 };

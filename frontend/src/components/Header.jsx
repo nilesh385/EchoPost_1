@@ -1,6 +1,6 @@
 import { Avatar, Button, Flex, useColorMode } from "@chakra-ui/react";
 import { CiLight } from "react-icons/ci";
-import { MdDarkMode } from "react-icons/md";
+import { MdDarkMode, MdOutlineSettings } from "react-icons/md";
 import { HiHome } from "react-icons/hi";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
@@ -61,6 +61,11 @@ function Header() {
             {user && (
               <Link to={"/chat"}>
                 <BsFillChatQuoteFill size={24} cursor={"pointer"} />
+              </Link>
+            )}
+            {user && (
+              <Link to={"/settings"}>
+                <MdOutlineSettings size={24} cursor={"pointer"} />
               </Link>
             )}
             <Button

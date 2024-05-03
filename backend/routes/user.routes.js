@@ -7,6 +7,7 @@ import {
   userUpdateProfile,
   getUserProfile,
   getSuggestedUsers,
+  freezeAccount,
 } from "../controllers/user.controllers.js";
 import authUser from "../middlewares/authUser.middlewares.js";
 
@@ -20,5 +21,6 @@ router.post("/login", loginUser);
 router.get("/logout", authUser, logoutUser);
 router.get("/follow/:id", authUser, followUnfollowUser);
 router.put("/update/:id", authUser, userUpdateProfile);
+router.put("/freeze", authUser, freezeAccount);
 
 export default router;

@@ -83,7 +83,7 @@ function PostPage() {
             to={`/${user.username}`}
             style={{ display: "flex", alignItems: "center", gap: "1rem" }}
           >
-            <Avatar src={user.profilePic} size={"md"} name={user.name} />
+            <Avatar src={user.profilePic} size={"md"} />
             <Flex>
               <Text fontSize={"sm"} fontWeight={"bold"}>
                 {user.username}

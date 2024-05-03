@@ -12,28 +12,28 @@ import {
   Text,
   useColorModeValue,
   Link,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useSetRecoilState } from "recoil";
-import authScreenAtom from "../atoms/authAtom";
+import authScreenAtom from "../atoms/authScreenAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
 
 export default function LoginCard() {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
+  const toast = useToast();
   const setUser = useSetRecoilState(userAtom);
 
   const [loginData, setLoginData] = useState({
     username: "",
     password: "",
   });
-  const [updating, setUpdating] = useState(false);
-
   const showToast = useShowToast();
   const onSubmit = async () => {
-    setUpdating(true);
+    console.log(loginData);
     try {
       const response = await fetch("/api/users/login", {
         method: "POST",
@@ -47,20 +47,23 @@ export default function LoginCard() {
         showToast("Error", data.error, "error");
         return;
       }
-      console.log(data, loginData);
       localStorage.setItem("user", JSON.stringify(data));
       setUser(data);
-      showToast("Success", "Logged in successfully", "success");
+      toast({
+        title: "Success",
+        description: "You have successfully logged-in",
+        status: "success",
+        duration: 4000,
+        isClosable: true,
+      });
     } catch (error) {
-      showToast("Error", error.message, "error");
-    } finally {
-      setUpdating(false);
+      showToast("Error", "Something went wrong while signing up", "Error");
     }
   };
 
   return (
     <Flex align={"center"} justify={"center"}>
-      <Stack spacing={5} mx={"auto"} maxW={"lg"} py={12} px={6}>
+      <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
         <Stack align={"center"}>
           <Heading fontSize={"4xl"} textAlign={"center"}>
             Login
@@ -112,7 +115,7 @@ export default function LoginCard() {
             </FormControl>
             <Stack spacing={10} pt={2}>
               <Button
-                loadingText="Logging in"
+                loadingText="Submitting"
                 size="lg"
                 bg={useColorModeValue("gray.600", "gray.700")}
                 color={"white"}
@@ -120,7 +123,6 @@ export default function LoginCard() {
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
                 onClick={onSubmit}
-                isLoading={updating}
               >
                 Login
               </Button>

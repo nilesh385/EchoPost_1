@@ -75,6 +75,8 @@ function CreatePost() {
       }
       onClose();
       setImgUrl("");
+      setPostText("");
+      setRemainingChar(MAX_CHAR);
       showToast("Success", data.message, "success");
     } catch (error) {
       showToast("Error", error, "error");

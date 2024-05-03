@@ -54,7 +54,6 @@ function Header() {
             <Link to={`/${user.username}`}>
               <Avatar
                 src={user.profilePic}
-                name={user.name}
                 title={`${user.name}\n${user.email}`}
                 size={"sm"}
               />

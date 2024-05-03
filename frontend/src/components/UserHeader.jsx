@@ -90,7 +90,6 @@ function UserHeader({ user }) {
         </Box>
         <Box>
           <Avatar
-            name={user?.name}
             src={user?.profilePic}
             border={"2px solid "}
             borderColor={"green"}

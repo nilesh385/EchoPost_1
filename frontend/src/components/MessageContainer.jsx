@@ -59,13 +59,49 @@ function MessageContainer() {
   }, [selectedConversation._id, socket, setConversations]);
 
   useEffect(() => {
+    const isLastMessageFromOtherUser =
+      messages.length &&
+      messages[messages.length - 1].sender !== currentUser._id;
+
+    if (isLastMessageFromOtherUser) {
+      socket.emit("markMessagesAsSeen", {
+        conversationId: selectedConversation._id,
+        userId: selectedConversation.userId,
+      });
+    }
+
+    socket.on("messagesSeen", ({ conversationId }) => {
+      if (selectedConversation._id === conversationId) {
+        setMessages((prevMsgs) => {
+          const updatedMessages = prevMsgs.map((msg) => {
+            if (!msg.seen) {
+              return {
+                ...msg,
+                seen: true,
+              };
+            }
+            return msg;
+          });
+          return updatedMessages;
+        });
+      }
+    });
+  }, [currentUser._id, messages, selectedConversation, socket]);
+
+  useEffect(() => {
     lastMessageRef?.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
     const getMessages = async () => {
-      if (selectedConversation.mock) return;
       setLoadingMessages(true);
+      if (selectedConversation.mock) {
+        setTimeout(() => {
+          setLoadingMessages(false);
+          setMessages([]);
+        }, 1000);
+        return;
+      }
       try {
         const res = await fetch(`/api/messages/${selectedConversation.userId}`);
         const data = await res.json();

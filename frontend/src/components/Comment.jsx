@@ -47,11 +47,7 @@ function Comment({ reply, isLastReply }) {
           _hover={{ bg: hoverBgColor, borderRadius: "full" }}
         >
           <Link to={`/${commentUser.username}`}>
-            <Avatar
-              name={commentUser.name}
-              src={commentUser.profilePic}
-              size={"sm"}
-            />
+            <Avatar src={commentUser.profilePic} size={"sm"} />
           </Link>
         </Button>
         <Flex gap={1} w={"full"} flexDirection={"column"}>

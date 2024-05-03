@@ -63,7 +63,6 @@ function Post({ post }) {
         <Flex flexDirection={"column"} alignItems={"center"}>
           <Avatar
             size={"md"}
-            name={postUser.name}
             src={postUser.profilePic}
             onClick={(e) => {
               e.preventDefault();
@@ -76,7 +75,6 @@ function Post({ post }) {
             {post.replies[0] && (
               <Avatar
                 size={"xs"}
-                name={post.replies[0].username}
                 src={post.replies[0].userProfilePic}
                 position={"absolute"}
                 bottom={0}
@@ -87,7 +85,6 @@ function Post({ post }) {
             {post.replies[1] && (
               <Avatar
                 size={"xs"}
-                name={post.replies[1].username}
                 src={post.replies[1].userProfilePic}
                 position={"absolute"}
                 bottom={0}
@@ -99,7 +96,6 @@ function Post({ post }) {
             {post.replies[2] && (
               <Avatar
                 size={"xs"}
-                name={post.replies[2].username}
                 src={post.replies[2].userProfilePic}
                 position={"absolute"}
                 top={0}

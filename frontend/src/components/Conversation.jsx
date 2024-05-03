@@ -1,6 +1,7 @@
 import {
   Avatar,
   AvatarBadge,
+  Box,
   Flex,
   Image,
   Stack,
@@ -58,7 +59,6 @@ function Conversation({ conversation, isOnline }) {
             md: "md",
             sm: "sm",
           }}
-          name={user.name}
           src={user.profilePic}
         >
           {isOnline ? <AvatarBadge boxSize={"1em"} bg={"green.500"} /> : ""}
@@ -71,7 +71,9 @@ function Conversation({ conversation, isOnline }) {
         </Text>
         <Text fontSize={"xs"} display={"flex"} alignItems={"center"} gap={1}>
           {currentUser._id === lastMessage.sender ? (
-            <BsCheck2All size={16} />
+            <Box color={lastMessage.seen ? "blue.500" : "#fff"}>
+              <BsCheck2All size={16} />
+            </Box>
           ) : (
             ""
           )}

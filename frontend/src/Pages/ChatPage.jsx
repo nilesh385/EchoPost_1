@@ -31,7 +31,28 @@ function ChatPage() {
 
   const [searchText, setSearchText] = useState("");
   const [searchingUsers, setSearchingUsers] = useState(false);
-  const { socket, onlineUsers } = useSocket();
+  const { onlineUsers, socket } = useSocket();
+
+  useEffect(() => {
+    socket?.on("messagesSeen", ({ conversationId }) => {
+      setConversations((prevConvs) => {
+        const updatedConversations = prevConvs.map((convs) => {
+          if (convs._id === conversationId) {
+            return {
+              ...convs,
+              lastMessage: {
+                ...convs.lastMessage,
+                seen: true,
+              },
+            };
+          }
+          return convs;
+        });
+        return updatedConversations;
+      });
+    });
+  }, [setConversations, socket]);
+
   useEffect(() => {
     const getConversations = async () => {
       try {

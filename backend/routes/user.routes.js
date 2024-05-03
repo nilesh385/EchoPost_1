@@ -6,11 +6,13 @@ import {
   followUnfollowUser,
   userUpdateProfile,
   getUserProfile,
+  getSuggestedUsers,
 } from "../controllers/user.controllers.js";
 import authUser from "../middlewares/authUser.middlewares.js";
 
 const router = express.Router();
 router.get("/profile/:query", getUserProfile);
+router.get("/suggested", authUser, getSuggestedUsers);
 router.post("/signup", signupUser);
 //login
 router.post("/login", loginUser);

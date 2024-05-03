@@ -15,12 +15,14 @@ function useGetUserProfile() {
         const data = await res.json();
         if (data.error) {
           showToast("Error", data.error, "error");
+          console.log("bro error", data.error);
+          setUser(null);
           return;
         }
         setUser(data);
-        // console.log(data);
       } catch (error) {
         showToast("Error", error, "error");
+        console.log("Error in hook", error);
       } finally {
         setIsLoading(false);
       }

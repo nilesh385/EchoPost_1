@@ -1,4 +1,4 @@
-import { Flex, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Spinner } from "@chakra-ui/react";
 // import { Link } from "react-router-dom";
 // import { useRecoilValue } from "recoil";
 // import userAtom from "../atoms/userAtom";
@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Post from "../components/Post";
 import { useRecoilState } from "recoil";
 import postAtom from "../atoms/postsAtom";
+import SuggestedUsers from "../components/SuggestedUsers";
 
 function HomePage() {
   const [posts, setPosts] = useRecoilState(postAtom);
@@ -29,22 +30,33 @@ function HomePage() {
     getFeedPosts();
   }, [showToast, setPosts]);
   return (
-    <>
-      {!isLoading && posts.length === 0 && (
-        <Flex align={"center"} justify={"center"}>
-          <h1>Follow some users to see feed</h1>
-        </Flex>
-      )}
-      {isLoading && posts && (
-        <Flex align={"center"} justify={"center"}>
-          <Spinner size={"xl"} />
-        </Flex>
-      )}
-      {posts &&
-        posts.map((post) => {
-          return <Post key={post._id} post={post} />;
-        })}
-    </>
+    <Flex gap={8} alignItems={"flex-start"}>
+      <Box flex={70}>
+        {!isLoading && posts.length === 0 && (
+          <Flex align={"center"} justify={"center"}>
+            <h1>Follow some users to see feed</h1>
+          </Flex>
+        )}
+        {isLoading && posts && (
+          <Flex align={"center"} justify={"center"}>
+            <Spinner size={"xl"} />
+          </Flex>
+        )}
+        {posts &&
+          posts.map((post) => {
+            return <Post key={post._id} post={post} />;
+          })}
+      </Box>
+      <Box
+        flex={30}
+        display={{
+          base: "none",
+          md: "block",
+        }}
+      >
+        <SuggestedUsers />
+      </Box>
+    </Flex>
   );
 }
 

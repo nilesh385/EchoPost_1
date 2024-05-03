@@ -20,55 +20,29 @@ import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { Link as RouterLink } from "react-router-dom";
 import { MdOutlineEdit } from "react-icons/md";
-import { useState } from "react";
 import useShowToast from "../hooks/useShowToast";
+import useFollowUnfollow from "../hooks/useFollowUnfollow";
+
 function UserHeader({ user }) {
   const { colorMode } = useColorMode();
-  const toast = useShowToast();
+  const showToast = useShowToast();
   const currentUser = useRecoilValue(userAtom); //logged in user
-  const [following, setFollowing] = useState(
-    user?.followers?.includes(currentUser?._id)
-  );
-  const [updatingFollow, setUpdatingFollow] = useState(false);
+  const { following, handleFollowUnfollow, updatingFollow } =
+    useFollowUnfollow(user);
+  // const [isFollowing, setIsFollowing] = useState(
+  //   user?.followers?.toString().includes(currentUser._id.toString())
+  // );
+
   const copyUrl = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
-      toast("Success", "Profile link copied to clipboard", "success");
+      showToast("Success", "Profile link copied to clipboard", "success");
     });
   };
-
-  const handleFollowUnfollow = async () => {
-    if (!currentUser) {
-      toast("Error", "Login/Signup to follow the user", "error");
-    }
-    setUpdatingFollow(true);
-
-    try {
-      const response = await fetch(`/api/users/follow/${user._id}`);
-      const data = await response.json();
-      if (data.error) {
-        toast("Error", data.error, "error");
-        return;
-      }
-      if (following) {
-        toast("Success", `${data.message} ${user.username}`, "success");
-        user.followers.filter((id) => id !== currentUser?._id);
-        // setFollowing(false);
-      } else {
-        toast("Success", `${data.message} ${user.username}`, "success");
-        user.followers.push(currentUser?._id);
-        // setFollowing(true);
-      }
-      console.log(data.message);
-      setFollowing(!following);
-      console.log(user?.followers?.includes(currentUser?._id) || "false");
-      console.log(following);
-    } catch (error) {
-      toast("Error", error, "error");
-    } finally {
-      setUpdatingFollow(false);
-    }
+  const handleReply = async () => {
+    await handleFollowUnfollow();
   };
+
   return (
     <VStack gap={4} alignItems={"start"}>
       <Flex justifyContent={"space-between"} w={"full"}>
@@ -115,7 +89,7 @@ function UserHeader({ user }) {
       {currentUser?._id !== user?._id && (
         <Button
           size={"sm"}
-          onClick={handleFollowUnfollow}
+          onClick={handleReply}
           isLoading={updatingFollow}
           loadingText="following"
         >
@@ -124,7 +98,7 @@ function UserHeader({ user }) {
       )}
       <Flex w={"full"} justifyContent={"space-between"}>
         <Flex gap={2} alignItems={"center"}>
-          <Text color={"gray.light"}>{user?.followers?.length} followers</Text>
+          <Text color={"gray.light"}>{user.followers.length} followers</Text>
           <Box w={1} h={1} bg={"gray.light"} borderRadius={"full"}></Box>
           <Text color={"gray.light"}>{user?.following?.length} following</Text>
           <Box w={1} h={1} bg={"gray.light"} borderRadius={"full"}></Box>

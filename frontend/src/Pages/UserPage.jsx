@@ -36,7 +36,6 @@ function UserPage() {
     getPost();
   }, [username, showToast, setPost]);
 
-  if (!user) return <h1>User not found</h1>;
   if (!user && isLoading) {
     return (
       <Flex justifyContent={"center"}>
@@ -48,7 +47,7 @@ function UserPage() {
 
   return (
     <>
-      <UserHeader user={user} />
+      {user.followers && <UserHeader user={user} />}
       {!fetchingPost && post?.length === 0 && <h1>User has no post.</h1>}
       {fetchingPost && (
         <Flex justifyContent={"center"}>
